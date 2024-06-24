@@ -58,6 +58,7 @@ const (
 	envVPrefix          = "TAGPR_VPREFIX"
 	envChangelog        = "TAGPR_CHANGELOG"
 	envCommand          = "TAGPR_COMMAND"
+	envConfigPath       = "TAGPR_CONFIG_PATH"
 	envTemplate         = "TAGPR_TEMPLATE"
 	envRelease          = "TAGPR_RELEASE"
 	envMajorLabels      = "TAGPR_MAJOR_LABELS"
@@ -89,9 +90,14 @@ type config struct {
 }
 
 func newConfig(gitPath string) (*config, error) {
+	cfgPath := os.Getenv(envConfigPath)
+	if cfgPath == "" {
+		cfgPath = defaultConfigFile
+	}
+
 	cfg := &config{
-		conf:      defaultConfigFile,
-		gitconfig: &gitconfig.Config{GitPath: gitPath, File: defaultConfigFile},
+		conf:      cfgPath,
+		gitconfig: &gitconfig.Config{GitPath: gitPath, File: cfgPath},
 	}
 	err := cfg.Reload()
 	return cfg, err
