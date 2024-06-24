@@ -1,6 +1,7 @@
 package tagpr
 
 import (
+	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -91,6 +92,7 @@ type config struct {
 
 func newConfig(gitPath string) (*config, error) {
 	cfgPath := os.Getenv(envConfigPath)
+	fmt.Println("cfgPath:", cfgPath)
 	if cfgPath == "" {
 		cfgPath = defaultConfigFile
 	}
@@ -103,6 +105,7 @@ func newConfig(gitPath string) (*config, error) {
 	return cfg, err
 }
 func (cfg *config) Reload() error {
+	fmt.Println("cfg.conf:", cfg.conf)
 	if rb := os.Getenv(envReleaseBranch); rb != "" {
 		cfg.releaseBranch = github.String(rb)
 	} else {
@@ -196,6 +199,7 @@ func (cfg *config) Reload() error {
 }
 
 func (cfg *config) set(key, value string) error {
+	fmt.Printf("set %s %s\n", key, value)
 	if !exists(cfg.conf) {
 		if err := cfg.initializeFile(); err != nil {
 			return err
@@ -243,6 +247,7 @@ func (cfg *config) SetVersionFile(fpath string) error {
 
 func (cfg *config) SetVPrefix(vPrefix bool) error {
 	if err := cfg.set(configVPrefix, strconv.FormatBool(vPrefix)); err != nil {
+		fmt.Println(cfg)
 		return err
 	}
 	cfg.vPrefix = github.Bool(vPrefix)
