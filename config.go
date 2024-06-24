@@ -27,7 +27,7 @@ const (
 #       You can specify multiple version files by comma separated strings.
 #
 #   tagpr.vPrefix
-#       Flag whether or not v-prefix is added to semver when git tagging. (e.g. v1.2.3 if true)
+#       Prefix to add to semver when git tagging. (e.g. v1.2.3 if 'v' is given)
 #       This is only a tagging convention, not how it is described in the version file.
 #
 #   tagpr.changelog (Optional)
@@ -80,7 +80,7 @@ type config struct {
 	command       *string
 	template      *string
 	release       *string
-	vPrefix       *bool
+	vPrefix       *string
 	changelog     *bool
 	majorLabels   *string
 	minorLabels   *string
@@ -102,7 +102,6 @@ func newConfig(gitPath string) (*config, error) {
 	err := cfg.Reload()
 	return cfg, err
 }
-
 func (cfg *config) Reload() error {
 	if rb := os.Getenv(envReleaseBranch); rb != "" {
 		cfg.releaseBranch = github.String(rb)
@@ -113,8 +112,8 @@ func (cfg *config) Reload() error {
 		}
 	}
 
-	if rb := os.Getenv(envVersionFile); rb != "" {
-		cfg.versionFile = github.String(rb)
+	if vf := os.Getenv(envVersionFile); vf != "" {
+		cfg.versionFile = github.String(vf)
 	} else {
 		out, err := cfg.gitconfig.Get(configVersionFile)
 		if err == nil {
@@ -123,15 +122,11 @@ func (cfg *config) Reload() error {
 	}
 
 	if vPrefix := os.Getenv(envVPrefix); vPrefix != "" {
-		b, err := strconv.ParseBool(vPrefix)
-		if err != nil {
-			return err
-		}
-		cfg.vPrefix = github.Bool(b)
+		cfg.vPrefix = github.String(vPrefix)
 	} else {
-		b, err := cfg.gitconfig.Bool(configVPrefix)
+		out, err := cfg.gitconfig.Get(configVPrefix)
 		if err == nil {
-			cfg.vPrefix = github.Bool(b)
+			cfg.vPrefix = github.String(out)
 		}
 	}
 

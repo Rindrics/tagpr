@@ -172,7 +172,7 @@ func (fl *fileList) list() []string {
 	return fl.l
 }
 
-func bumpVersionFile(fpath string, from, to *semv) error {
+func func bumpVersionFile(fpath string, from, to *semv) error {
 	verReg, err := regexp.Compile(`(v|\b)` + regexp.QuoteMeta(from.Naked()) + `\b`)
 	if err != nil {
 		return err
@@ -188,12 +188,12 @@ func bumpVersionFile(fpath string, from, to *semv) error {
 			return match
 		}
 		replaced = true
-		return verReg.ReplaceAll(match, []byte(`${1}`+to.Naked()))
+		return verReg.ReplaceAll(match, []byte(to.vPrefix+to.Naked()))
 	})
 	return os.WriteFile(fpath, updated, 0666)
 }
 
-func retrieveVersionFromFile(fpath string, vPrefix bool) (*semv, error) {
+func retrieveVersionFromFile(fpath string, vPrefix string) (*semv, error) {
 	bs, err := os.ReadFile(fpath)
 	if err != nil {
 		return nil, err
@@ -208,8 +208,5 @@ func retrieveVersionFromFile(fpath string, vPrefix bool) (*semv, error) {
 		}
 		ver = string(m[1])
 	}
-	if vPrefix {
-		ver = "v" + ver
-	}
-	return newSemver(ver)
+	return newSemver(ver, vPrefix)
 }

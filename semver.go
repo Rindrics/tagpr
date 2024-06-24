@@ -5,17 +5,18 @@ import "github.com/Masterminds/semver/v3"
 type semv struct {
 	v *semver.Version
 
-	vPrefix bool
+	vPrefix string
 }
 
-func newSemver(v string) (*semv, error) {
+func newSemver(v string, prefix string) (*semv, error) {
 	var err error
-	sv := &semv{}
+	sv := &semv{
+		vPrefix: prefix,
+	}
 	sv.v, err = semver.NewVersion(v)
 	if err != nil {
 		return nil, err
 	}
-	sv.vPrefix = v[0] == 'v'
 	return sv, nil
 }
 
@@ -24,8 +25,8 @@ func (sv *semv) Naked() string {
 }
 
 func (sv *semv) Tag() string {
-	if sv.vPrefix {
-		return "v" + sv.Naked()
+	if sv.vPrefix != "" {
+		return sv.vPrefix + sv.Naked()
 	}
 	return sv.Naked()
 }
